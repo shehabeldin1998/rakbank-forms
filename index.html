@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>RAKBANK Forms — Demo</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --primary:#00629B;
+      --dark:#1D3557;
+      --muted:#666;
+      --bg:#ffffff;
+      --card:#f8f9fb;
+      --radius:10px;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#f7fbff 0%, #ffffff 100%);color:var(--dark)}
+    .container{max-width:900px;margin:28px auto;padding:20px}
+    .card{background:var(--bg);border-radius:var(--radius);padding:22px;box-shadow:0 6px 18px rgba(20,30,60,0.06)}
+    .logo{height:60px;display:block;margin:0 auto 8px auto}
+    h1{text-align:center;margin:6px 0 18px;font-size:22px;color:var(--dark)}
+    .buttons{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:18px 0}
+    .bigBtn{min-width:220px;padding:14px 18px;border-radius:10px;border:none;cursor:pointer;font-weight:600;font-size:15px}
+    .bigPrimary{background:var(--primary);color:white}
+    .bigSecondary{background:transparent;border:2px solid var(--primary);color:var(--primary)}
+    .note{text-align:center;color:var(--muted);margin-top:10px;font-size:13px}
+    .topBar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .hidden{display:none}
+    .list{margin-top:12px}
+    .formRow{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:8px;background:var(--card);margin-bottom:8px}
+    .formIndex{width:28;text-align:right;color:#333;font-weight:600}
+    .formTitle{font-weight:600}
+    .formUrl{font-size:12px;color:var(--muted);word-break:break-all}
+    .openBtn{margin-left:auto;background:var(--primary);color:white;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+    .controls{display:flex;gap:8px;align-items:center}
+    input[type="file"]{display:none}
+    .small{font-size:13px;color:var(--muted)}
+    .emailsList{margin-top:12px}
+    .emailRow{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:10px;border-radius:8px;background:var(--card);margin-bottom:8px}
+    .emailText{font-weight:600}
+    .btn{padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+    .btnDanger{background:#d9534f;color:white}
+    .btnPrimary{background:var(--primary);color:white}
+    .inlineInput{padding:8px;border-radius:8px;border:1px solid #ddd;min-width:220px}
+    .addBtn{margin-left:8px;padding:10px;background:var(--primary);border-radius:6px;color:#fff;cursor:pointer;border:none}
+    .row{display:flex;gap:8px;align-items:center}
+    .footer{margin-top:18px;text-align:center;font-size:12px;color:var(--muted)}
+    .importExport{display:flex;gap:8px;align-items:center}
+    .fileLabel{background:#eef6ff;padding:8px 10px;border-radius:8px;border:1px dashed #cfe8ff;color:var(--primary);cursor:pointer}
+    .exportLink{background:#fff;border:1px solid #ddd;padding:6px 10px;border-radius:8px}
+    .help{font-size:13px;color:var(--muted);margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" id="homeView">
+      <img class="logo" id="logo" src="" alt="RAKBANK Logo placeholder" />
+      <h1>RAKBANK Forms</h1>
+      <div class="buttons">
+        <button class="bigBtn bigPrimary" id="btnForms">Rakbank Forms</button>
+        <button class="bigBtn bigSecondary" id="btnEmails">Rakbank Emails</button>
+      </div>
+      <div style="text-align:center">
+        <label class="fileLabel" title="Replace logo">
+          Replace logo
+          <input type="file" id="logoFile" accept="image/*" />
+        </label>
+      </div>
+      <p class="note">Import a `forms.json` (from the scraper) via the Forms view to load the official forms & sequence. Emails are editable and persist locally.</p>
+      <div class="footer">Demo HTML tool — not an official RAKBANK app. If you publish, verify trademark/logo permissions.</div>
+    </div>
+
+    <div class="card hidden" id="formsView">
+      <div class="topBar">
+        <div>
+          <button class="btn" id="backFromForms">&larr; Home</button>
+        </div>
+        <div class="controls">
+          <label class="fileLabel" id="importLabel">Import forms.json
+            <input type="file" id="importFile" accept="application/json" />
+          </label>
+          <button class="btn exportLink" id="exportForms">Export JSON</button>
+        </div>
+      </div>
+      <h1>Downloadable Forms</h1>
+      <div class="help">Tip: Use the "Import forms.json" button to load exact forms scraped from RAKBANK website (scraper output).</div>
+      <div class="list" id="formsList"></div>
+      <div class="footer">
+        <button class="btn" id="reloadSample">Load sample forms</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="emailsView">
+      <div class="topBar">
+        <div>
+          <button class="btn" id="backFromEmails">&larr; Home</button>
+        </div>
+      </div>
+      <h1>Rakbank Emails</h1>
+      <div class="emailsList" id="emailsList"></div>
+
+      <div style="margin-top:12px">
+        <div class="row">
+          <input class="inlineInput" id="newEmailInput" placeholder="add new email (e.g. help@rakbank.ae)" />
+          <button class="btn btnPrimary" id="addEmailBtn">Add</button>
+        </div>
+      </div>
+
+      <div class="footer">Emails saved to browser storage (local to this device / browser). You can export or clear storage in dev tools.</div>
+    </div>
+  </div>
+
+  <script>
+    const SAMPLE_FORMS_JSON = {
+      "source":"placeholder",
+      "scraped_at":"2025-10-24T00:00:00Z",
+      "forms":[
+        { "title":"Account Opening Form","url":"https://www.rakbank.ae/assets/forms/account-opening.pdf" },
+        { "title":"Cheque Book Request","url":"https://www.rakbank.ae/assets/forms/cheque-book-request.pdf" },
+        { "title":"Electronic Funds Transfer Form","url":"https://www.rakbank.ae/assets/forms/eft-form.pdf" }
+      ]
+    };
+
+    const FORMS_KEY = 'rakbank_forms_json_v1';
+    const EMAILS_KEY = 'rakbank_emails_v1';
+
+    const homeView = document.getElementById('homeView');
+    const formsView = document.getElementById('formsView');
+    const emailsView = document.getElementById('emailsView');
+    const btnForms = document.getElementById('btnForms');
+    const btnEmails = document.getElementById('btnEmails');
+    const backFromForms = document.getElementById('backFromForms');
+    const backFromEmails = document.getElementById('backFromEmails');
+    const formsList = document.getElementById('formsList');
+    const importFile = document.getElementById('importFile');
+    const exportFormsBtn = document.getElementById('exportForms');
+    const reloadSampleBtn = document.getElementById('reloadSample');
+    const emailsListEl = document.getElementById('emailsList');
+    const addEmailBtn = document.getElementById('addEmailBtn');
+    const newEmailInput = document.getElementById('newEmailInput');
+    const logoFile = document.getElementById('logoFile');
+    const logoImg = document.getElementById('logo');
+
+    const placeholderSVG = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100'><rect width='400' height='100' fill='#00629B'/><text x='50%' y='55' font-family='Arial' font-size='28' fill='#fff' text-anchor='middle'>RAKBANK</text></svg>`);
+    logoImg.src = 'data:image/svg+xml;utf8,' + placeholderSVG;
+
+    btnForms.addEventListener('click', ()=> showView('forms'));
+    btnEmails.addEventListener('click', ()=> showView('emails'));
+    backFromForms.addEventListener('click', ()=> showView('home'));
+    backFromEmails.addEventListener('click', ()=> showView('home'));
+
+    function showView(name){
+      homeView.classList.add('hidden');
+      formsView.classList.add('hidden');
+      emailsView.classList.add('hidden');
+      if(name === 'forms') formsView.classList.remove('hidden');
+      else if(name === 'emails') emailsView.classList.remove('hidden');
+      else homeView.classList.remove('hidden');
+      if(name === 'forms') renderForms();
+      if(name === 'emails') renderEmails();
+    }
+
+    function loadFormsJson(){
+      try {
+        const raw = localStorage.getItem(FORMS_KEY);
+        if(raw) return JSON.parse(raw);
+      } catch(e){}
+      return SAMPLE_FORMS_JSON;
+    }
+    function saveFormsJson(obj){
+      localStorage.setItem(FORMS_KEY, JSON.stringify(obj));
+    }
+
+    function renderForms(){
+      const data = loadFormsJson();
+      const arr = Array.isArray(data.forms) ? data.forms : [];
+      formsList.innerHTML = '';
+      if(arr.length === 0){
+        formsList.innerHTML = '<div class="small">No forms loaded. Use "Import forms.json" or "Load sample forms".</div>';
+        return;
+      }
+      arr.forEach((f, idx) => {
+        const row = document.createElement('div'); row.className = 'formRow';
+        const idxEl = document.createElement('div'); idxEl.className = 'formIndex'; idxEl.textContent = (idx+1)+'.';
+        const info = document.createElement('div'); info.style.flex='1';
+        const title = document.createElement('div'); title.className = 'formTitle'; title.textContent = f.title || '(no title)';
+        const url = document.createElement('div'); url.className = 'formUrl'; url.textContent = f.url || '';
+        info.appendChild(title); info.appendChild(url);
+        const openBtn = document.createElement('button'); openBtn.className = 'openBtn'; openBtn.textContent = 'Open';
+        openBtn.addEventListener('click', ()=> {
+          if(!f.url) return alert('No url for this form');
+          window.open(f.url, '_blank', 'noopener');
+        });
+        row.appendChild(idxEl); row.appendChild(info); row.appendChild(openBtn);
+        formsList.appendChild(row);
+      });
+    }
+
+    importFile.addEventListener('change', async (ev) => {
+      const file = ev.target.files && ev.target.files[0];
+      if(!file) return;
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        if(!parsed || !Array.isArray(parsed.forms)){
+          alert('Imported JSON does not contain a "forms" array. Make sure you exported the scraper JSON.');
+          return;
+        }
+        saveFormsJson(parsed);
+        renderForms();
+        alert('forms.json imported successfully. Sequence preserved.');
+      } catch(e){
+        alert('Failed to import JSON: ' + e.message);
+      } finally {
+        importFile.value = '';
+      }
+    });
+
+    exportFormsBtn.addEventListener('click', ()=>{
+      const obj = loadFormsJson();
+      const blob = new Blob([JSON.stringify(obj, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'forms.json'; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 2000);
+    });
+
+    reloadSampleBtn.addEventListener('click', ()=>{
+      saveFormsJson(SAMPLE_FORMS_JSON);
+      renderForms();
+      alert('Sample forms loaded.');
+    });
+
+    function loadEmails(){
+      try {
+        const raw = localStorage.getItem(EMAILS_KEY);
+        if(raw) return JSON.parse(raw);
+      } catch(e){}
+      return [
+        "Eservice@rakbank.ae",
+        "cmdocuments@rakbank.ae",
+        "contactus@rakbank.ae",
+        "customersupport@rakbank.ae",
+        "complaints@rakbank.ae"
+      ];
+    }
+    async function saveEmails(arr){
+      localStorage.setItem(EMAILS_KEY, JSON.stringify(arr));
+    }
+    function renderEmails(){
+      const arr = loadEmails();
+      emailsListEl.innerHTML = '';
+      arr.forEach((em, idx) => {
+        const row = document.createElement('div'); row.className='emailRow';
+        const left = document.createElement('div'); left.style.display='flex'; left.style.gap='10px'; left.style.alignItems='center';
+        const emailTxt = document.createElement('div'); emailTxt.className = 'emailText'; emailTxt.textContent = em;
+        left.appendChild(emailTxt);
+        const editBtn = document.createElement('button'); editBtn.className='btn'; editBtn.textContent='Edit';
+        editBtn.addEventListener('click', ()=>{
+          const newVal = prompt('Edit email', em);
+          if(newVal && newVal.trim()){
+            arr[idx] = newVal.trim();
+            saveEmails(arr); renderEmails();
+          }
+        });
+        left.appendChild(editBtn);
+        const right = document.createElement('div');
+        const del = document.createElement('button'); del.className='btn btnDanger'; del.textContent='Delete';
+        del.addEventListener('click', ()=>{
+          if(!confirm('Delete this email?')) return;
+          arr.splice(idx,1); saveEmails(arr); renderEmails();
+        });
+        right.appendChild(del);
+        row.appendChild(left); row.appendChild(right); emailsListEl.appendChild(row);
+      });
+    }
+
+    addEmailBtn.addEventListener('click', async ()=> {
+      const val = (newEmailInput.value||'').trim();
+      if(!val) return alert('Enter an email first');
+      const arr = loadEmails();
+      arr.push(val);
+      await saveEmails(arr);
+      newEmailInput.value = '';
+      renderEmails();
+    });
+
+    logoFile.addEventListener('change', async (ev)=>{
+      const f = ev.target.files && ev.target.files[0];
+      if(!f) return;
+      const reader = new FileReader();
+      reader.onload = function(e){
+        logoImg.src = e.target.result;
+      };
+      reader.readAsDataURL(f);
+      logoFile.value = '';
+    });
+
+    (function init(){
+      showView('home');
+      if(!localStorage.getItem(FORMS_KEY)) saveFormsJson(SAMPLE_FORMS_JSON);
+      if(!localStorage.getItem(EMAILS_KEY)) saveEmails(loadEmails());
+    })();
+  </script>
+</body>
+</html>
